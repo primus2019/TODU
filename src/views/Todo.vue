@@ -12,12 +12,14 @@
     </b-row>
     <Kanban
       :darkMode="darkMode"
+      :listHeaders="listHeaders"
       :taskLists="taskLists"
       @show-task-detail="handleShowTaskDetail"
       @change-title="handleChangeTitle"
       @add-task="handleAddTask"
       @delete-list="handleDeleteList"
       @move="handleTaskMove"
+      @change-list-rank="handleChangeListRank"
     ></Kanban>
     <TaskDetail
       id="task-detail"
@@ -57,6 +59,7 @@ export default Vue.extend({
   data () {
     return {
       taskLists: {},
+      listHeaders: [],
       darkMode: false,
       addMode: false,
       taskOnShow: {},
@@ -99,6 +102,7 @@ export default Vue.extend({
           } else {
             console.log('alter title fails')
           }
+          this.reviewLists()
           this.reviewTaskLists()
         })
         .catch((err) => { console.log(err) })
@@ -118,6 +122,7 @@ export default Vue.extend({
           } else {
             console.log('delete task fails')
           }
+          this.reviewLists()
           this.reviewTaskLists()
         })
     },
@@ -136,6 +141,7 @@ export default Vue.extend({
           } else {
             console.log('alter task fails')
           }
+          this.reviewLists()
           this.reviewTaskLists()
         })
         .catch((err) => { console.log(err) })
@@ -174,6 +180,7 @@ export default Vue.extend({
           } else {
             console.log('add task fails')
           }
+          this.reviewLists()
           this.reviewTaskLists()
         })
         .catch((err) => { console.log(err) })
@@ -197,6 +204,7 @@ export default Vue.extend({
           } else {
             console.log('new title fails')
           }
+          this.reviewLists()
           this.reviewTaskLists()
         })
     },
@@ -214,21 +222,28 @@ export default Vue.extend({
           } else {
             console.log('delete list fails')
           }
+          this.reviewLists()
           this.reviewTaskLists()
         })
         .catch((err) => {
           console.log(err)
         })
     },
-    handleTaskMove (listIndex: number, taskIndex: number): void {
-      console.log('handleTaskMove', listIndex, taskIndex)
-      const tmpTaskId = (this.taskLists as Record<string, any>)[listIndex].tasks[taskIndex].task_id
+    handleTaskMove (listId: number, taskId: number): void {
+      console.log('handleTaskMove', {
+        method: 'post',
+        url: 'http://' + this.domain + ':2000/todu/move_tasks',
+        data: {
+          taskId: taskId,
+          listId: listId
+        }
+      })
       axios({
         method: 'post',
         url: 'http://' + this.domain + ':2000/todu/move_tasks',
         data: {
-          taskId: tmpTaskId,
-          listId: listIndex
+          taskId: taskId,
+          listId: listId
         }
       })
         .then((res) => {
@@ -237,7 +252,26 @@ export default Vue.extend({
           } else {
             console.log('move tasks fails')
           }
+          this.reviewLists()
           this.reviewTaskLists()
+        })
+        .catch((err) => { console.log(err) })
+    },
+    handleChangeListRank (listIndex: number): void {
+      console.log('handleChangeListRank')
+    },
+    reviewLists (): void {
+      axios({
+        method: 'get',
+        url: 'http://' + this.domain + ':2000/todu/review_lists'
+      })
+        .then((res) => {
+          if (res.data.status === 0) {
+            console.log('review lists set', res.data)
+            this.listHeaders = res.data.listHeaders
+          } else {
+            console.log('review lists fails')
+          }
         })
         .catch((err) => { console.log(err) })
     },
@@ -268,6 +302,7 @@ export default Vue.extend({
   },
   mounted (): void {
     this.setDomain()
+    this.reviewLists()
     this.reviewTaskLists()
   }
 })

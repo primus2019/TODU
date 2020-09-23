@@ -89,7 +89,7 @@
           block
           v-if="!addMode && task.title !== 'new task'"
           :variant="darkMode ? 'outline-light' : 'outline-dark'"
-          @click="$emit('delete-task', tmpTask.task_id)"
+          @click="$bvModal.hide(id); $emit('delete-task', tmpTask.task_id);"
         >
           archive
         </b-button>
@@ -97,7 +97,7 @@
           block
           v-if="!addMode"
           :variant="importanceVariantMap[tmpTask.importance]"
-          @click="$emit('alter-task', tmpTask)"
+          @click="$bvModal.hide(id); $emit('alter-task', tmpTask);"
         >
           {{ task.title === 'new task' ? 'add' : 'change'}}
         </b-button>
@@ -105,7 +105,7 @@
           block
           v-if="addMode"
           :variant="importanceVariantMap[tmpTask.importance]"
-          @click="$emit('add-task', tmpTask)"
+          @click="$bvModal.hide(id); $emit('add-task', tmpTask);"
         >
           add
         </b-button>
