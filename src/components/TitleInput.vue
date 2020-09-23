@@ -12,6 +12,7 @@
       autofocus
       type="text"
       v-model="newTitle"
+      :style="{ color: darkMode ? 'white' : 'black', 'background-color': 'transparent', display: 'inline' }"
     ></b-input>
     <b-button
       block
